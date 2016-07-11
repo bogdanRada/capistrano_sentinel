@@ -21,8 +21,7 @@ require_relative './classes/gem_finder'
   Gem.find_files("#{CapistranoSentinel::GemFinder.get_current_gem_name}/#{folder_name}/**/*.rb").each { |path| require path }
 end
 
-
-if ENV[CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID] && CapistranoSentinel::GemFinder.fetch_gem_version('capistrano')
+if !CapistranoSentinel::GemFinder.value_blank?(ENV[CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID]) && CapistranoSentinel::GemFinder.fetch_gem_version('capistrano')
   if CapistranoSentinel::GemFinder.capistrano_version_2?
     require_relative './patches/capistrano2'
   else
