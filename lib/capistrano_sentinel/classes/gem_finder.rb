@@ -16,9 +16,9 @@ module CapistranoSentinel
             File.fnmatch(File.join(spec.full_gem_path,'*'), __FILE__)
           end
         end
-        spec.name if spec.present?
+        spec.name unless value_blank?(spec)
       end
-      
+
       def capistrano_version_2?
         cap_version = fetch_gem_version('capistrano')
         value_blank?(cap_version) ? false : verify_gem_version(cap_version, '3.0', operator: '<')

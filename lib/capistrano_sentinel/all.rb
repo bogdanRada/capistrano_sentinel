@@ -12,6 +12,7 @@ require 'openssl'
 require 'forwardable'
 require 'thread'
 require 'monitor'
+require 'logger'
 
 require 'websocket'
 require_relative './classes/gem_finder'
@@ -20,8 +21,11 @@ require_relative './classes/gem_finder'
   Gem.find_files("#{CapistranoSentinel::GemFinder.get_current_gem_name}/#{folder_name}/**/*.rb").each { |path| require path }
 end
 
-if CapistranoSentinel::GemFinder.capistrano_version_2?
-  require_relative './capistrano_sentinel/patches/capistrano2'
-else
-  require_relative './capistrano_sentinel/patches/rake'
+
+if ENV[CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID] && CapistranoSentinel::GemFinder.fetch_gem_version('capistrano')
+  if CapistranoSentinel::GemFinder.capistrano_version_2?
+    require_relative './patches/capistrano2'
+  else
+    require_relative './patches/rake'
+  end
 end
