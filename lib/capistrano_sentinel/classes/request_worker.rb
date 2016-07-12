@@ -1,11 +1,9 @@
-require_relative '../helpers/actor'
 require_relative './websocket_client'
 require_relative '../helpers/application_helper'
 module CapistranoSentinel
   # class that handles the rake task and waits for approval from the celluloid worker
   class RequestWorker
     include CapistranoSentinel::ApplicationHelper
-    #include CapistranoSentinel::Actor
 
     attr_reader :client, :job_id, :action, :task,
     :task_approved, :stdin_result, :executor
@@ -103,10 +101,10 @@ module CapistranoSentinel
     def task_approval(message)
       return if !message_is_about_a_task?(message)
       log_to_file("RakeWorker #{@job_id} #{task_name} task_approval : #{message.inspect}")
-      if @job_id == message['job_id'] && message['task'].to_s == task_name.to_s && message['approved'] == 'yes'
+      if @job_id.to_s == message['job_id'].to_s && message['task'] && message['approved'] == 'yes'
         @task_approved = true
       else
-        show_warning "unknown task_approval #{message.inspect} #{task_data}"
+        show_warning "unknown task_approval #{message} #{task_data}"
       end
     end
 

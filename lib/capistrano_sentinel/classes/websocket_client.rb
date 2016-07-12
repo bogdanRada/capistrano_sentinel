@@ -3,7 +3,6 @@ require_relative '../helpers/actor'
 require_relative '../helpers/application_helper'
 module CapistranoSentinel
   class WebsocketClient
-    include CapistranoSentinel::AsyncActor
     include CapistranoSentinel::ApplicationHelper
 
     HOST = '0.0.0.0'
@@ -46,34 +45,59 @@ module CapistranoSentinel
       @channel ||= @options.fetch(:channel, nil)
       raise "#{self}: Please provide an actor in the options list!!!" if @actor.blank?
 
+      
       @auto_pong   = @options.fetch(:auto_pong, true) || true
       @closed      = false
       @opened      = false
 
       @on_open    = lambda {
-        log_to_file("#{@actor.class} websocket connection opened")
+        log_to_file("native websocket client  websocket connection opened")
         subscribe(@channel) if @channel.present?
       }
 
       @on_close   = lambda { |message|
-        log_to_file("#{@actor.class} dispatching on close  #{message}")
-        @actor.on_close(message)
+        log_to_file("native websocket client received on_close  #{message.inspect}")
+        if @actor.respond_to?(:on_close)
+          if @actor.respond_to?(:async)
+            @actor.async.on_close(message)
+          else
+            @actor.on_close(message)
+          end
+        end
       }
 
       @on_ping    = lambda { |message|
-        @actor.on_ping(message) if @actor.respond_to?(:on_ping)
+        log_to_file("native websocket client received PING  #{message.inspect}")
+        if @actor.respond_to?(:on_ping)
+          if @actor.respond_to?(:async)
+            @actor.async.on_ping(message)
+          else
+            @actor.on_ping(message)
+          end
+        end
       }
 
       @on_error   = lambda { |error|
-        @actor.on_error(message) if @actor.respond_to?(:on_error)
+        log_to_file("native websocket client received ERROR  #{error.inspect} #{error.backtrace}")
+        if @actor.respond_to?(:on_error)
+          if @actor.respond_to?(:async)
+            @actor.async.on_error(error)
+          else
+            @actor.on_error(error)
+          end
+        end
       }
 
       @on_message = lambda { |message|
         message = parse_json(message)
-        log_to_file("#{@actor.class} received JSON  #{message}")
-        @actor.on_message(message)
+        log_to_file("native websocket client received JSON  #{message}")
+        if @actor.respond_to?(:async)
+          @actor.async.on_message(message)
+        else
+          @actor.on_message(message)
+        end
       }
-        connect
+      connect
     end
 
     def is_windows?
