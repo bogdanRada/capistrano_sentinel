@@ -4,7 +4,7 @@ module CapistranoSentinel
     module_function
 
     def logger
-      @logger ||= ::Logger.new('/home/raul/workspace/ecommerce/ecommerce-livechat/log/multi_cap.log')
+      @logger ||= ::Logger.new(ENV["LOG_FILE"] || '/dev/null')
     end
 
     def error_filtered?(error)
