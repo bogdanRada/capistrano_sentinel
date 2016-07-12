@@ -1,5 +1,4 @@
 require_relative './websocket/errors'
-require_relative '../helpers/actor'
 require_relative '../helpers/application_helper'
 module CapistranoSentinel
   class WebsocketClient
@@ -45,7 +44,7 @@ module CapistranoSentinel
       @channel ||= @options.fetch(:channel, nil)
       raise "#{self}: Please provide an actor in the options list!!!" if @actor.blank?
 
-      
+
       @auto_pong   = @options.fetch(:auto_pong, true) || true
       @closed      = false
       @opened      = false
