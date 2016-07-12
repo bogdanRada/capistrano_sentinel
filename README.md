@@ -39,9 +39,6 @@ Add the following to your Capfile
   require 'capistrano_sentinel'
 ```
 
-Testing
--------
-
 Usage Instructions
 ==================
 
@@ -53,6 +50,9 @@ Just run capistrano task like you normally do and you will get websocket notific
 
 bundle exec cap  <development_stage> <task_name>  
 ```
+
+Testing
+-------
 
 To test, do the following:
 
