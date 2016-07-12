@@ -4,10 +4,10 @@ Gem::Specification.new do |s|
   s.name = "capistrano_sentinel"
   s.version     = CapistranoSentinel.gem_version
   s.platform    = Gem::Platform::RUBY
-  s.summary = "\"capistrano_sentinel\""
+  s.summary = "CapistranoSentinel is a simple ruby implementation that allows you to emit websocket events before a task is invoked by Capistrano."
   s.email       = "raoul_ice@yahoo.com"
   s.homepage = "http://github.com/bogdanRada/capistrano_sentinel"
-  s.description = "\"Handles capistrano deploy in parallel.\""
+  s.description = "CapistranoSentinel is a simple ruby implementation that allows you to emit websocket events before a task is invoked by Capistrano."
   s.authors     = ["bogdanRada"]
 
   s.date = Date.today
