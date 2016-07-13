@@ -110,7 +110,7 @@ module CapistranoSentinel
     #
     # @api public
     def subscribe(channel, data = {})
-      log_to_file("#{@actor.class} tries to subscribe to channel  #{channel}")
+      log_to_file("#{self.class} tries to subscribe to channel  #{channel}")
       send_action('subscribe', channel, data)
     end
 
@@ -182,7 +182,7 @@ module CapistranoSentinel
       else
         final_message = JSON.dump(action: 'message', message: message)
       end
-      log_to_file("#{@actor.class} sends JSON #{final_message}")
+      log_to_file("#{self.class} sends JSON #{final_message}")
       send_data(final_message)
     end
 
@@ -223,7 +223,7 @@ module CapistranoSentinel
         begin
           connect
         rescue ::Errno::ECONNREFUSED => e
-          log_to_file("#{@actor.class} got ECONNREFUSED #{e.inspect} ")
+          log_to_file("#{self.class} got ECONNREFUSED #{e.inspect} ")
           sleep @options[:retry_time]
         rescue => e
           fire_on_error e
@@ -251,7 +251,7 @@ module CapistranoSentinel
               @protocol_version = handshake.version
               @active = true
               @opened = true
-              log_to_file("#{@actor.class} got handshake finished ")
+              log_to_file("#{self.class} got handshake finished ")
               init_messaging
               fire_on_open
               break
@@ -270,9 +270,9 @@ module CapistranoSentinel
               end
             end
           rescue ::IO::WaitReadable => e
-            #log_to_file("#{@actor.class} got WaitReadable #{e.inspect}")
+            #log_to_file("#{self.class} got WaitReadable #{e.inspect}")
           rescue ::IO::WaitWritable => e
-            #log_to_file("#{@actor.class} got WaitWritable #{e.inspect}")
+            #log_to_file("#{self.class} got WaitWritable #{e.inspect}")
             # ignored
           end
         end
@@ -294,7 +294,7 @@ module CapistranoSentinel
             end
             fire_on_error CapistranoSentinel::WsProtocolError.new(frame.error) if frame.error?
           rescue => e
-            log_to_file("#{@actor.class} crashed with #{e.inspect} #{e.backtrace}")
+            log_to_file("#{self.class} crashed with #{e.inspect} #{e.backtrace}")
             fire_on_error(e)
             if @socket.closed? || @socket.eof?
               @read_thread = nil
@@ -306,7 +306,7 @@ module CapistranoSentinel
       end
 
       def determine_message_type(message)
-        log_to_file("#{@actor.class} tries to dispatch message #{message.inspect}")
+        log_to_file("#{self.class} tries to dispatch message #{message.inspect}")
         case message.type
         when :binary, :text
           fire_on_message(message.data)
@@ -336,27 +336,27 @@ module CapistranoSentinel
       end
 
       def fire_on_ping(message)
-        log_to_file("#{@actor.class} tries to ping #{message.inspect}")
+        log_to_file("#{self.class} tries to ping #{message.inspect}")
         @on_ping.call(message) if @on_ping
       end
 
       def fire_on_message(message)
-        log_to_file("#{@actor.class} tries to fire_on_message #{message.inspect}")
+        log_to_file("#{self.class} tries to fire_on_message #{message.inspect}")
         @on_message.call(message) if @on_message
       end
 
       def fire_on_open
-        log_to_file("#{@actor.class} tries to on_open ")
+        log_to_file("#{self.class} tries to on_open ")
         @on_open.call() if @on_open
       end
 
       def fire_on_error(error)
-        log_to_file("#{@actor.class} tries to on_error with #{error.inspect} ")
+        log_to_file("#{self.class} tries to on_error with #{error.inspect} ")
         @on_error.call(error) if @on_error
       end
 
       def fire_on_close(message = nil)
-        log_to_file("#{@actor.class} tries to fire_on_close with #{message.inspect} ")
+        log_to_file("#{self.class} tries to fire_on_close with #{message.inspect} ")
         @active = false
         @closed = true
         @on_close.call(message) if @on_close
