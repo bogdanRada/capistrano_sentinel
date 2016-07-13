@@ -3,6 +3,9 @@ capistrano_sentinel
 
 [![Gem Version](https://badge.fury.io/rb/capistrano_sentinel.svg)](http://badge.fury.io/rb/capistrano_sentinel) [![Gem Downloads](https://ruby-gem-downloads-badge.herokuapp.com/capistrano_sentinel?type=total&style=dynamic)](https://github.com/bogdanRada/capistrano_sentinel) [![Analytics](https://ga-beacon.appspot.com/UA-72570203-1/bogdanRada/capistrano_sentinel)](https://github.com/bogdanRada/capistrano_sentinel)
 
+**IMPORTANT!!!**  The whole reason for this gem was for using [capistrano_multiconfig_parallel](https://github.com/bogdanRada/capistrano_multiconfig_parallel) that allows you to run tasks in parallel for multiple aplications. This gem is practically the producer that produces the websocket events when a capistrano task is running that the other gem is the consumer that consumes the messages and acts depending on configuration and displays the progress on screen
+
+
 Overview
 --------
 
