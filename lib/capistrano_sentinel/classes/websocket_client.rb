@@ -16,8 +16,8 @@ module CapistranoSentinel
       retry_time: 0
     }
 
-    attr_reader :socket, :read_thread,  :protocol_version
-    attr_accessor :auto_pong, :on_ping, :on_error, :on_message
+    attr_reader :socket, :read_thread,  :protocol_version, :actor
+    attr_accessor :auto_pong, :on_ping, :on_error, :on_message, :actor
 
     ##
     # +host+:: Host of request. Required if no :url param was provided.
@@ -42,7 +42,6 @@ module CapistranoSentinel
 
       @actor ||=  @options.fetch(:actor, nil)
       @channel ||= @options.fetch(:channel, nil)
-      raise "#{self}: Please provide an actor in the options list!!!" if @actor.blank?
 
 
       @auto_pong   = @options.fetch(:auto_pong, true) || true
@@ -56,7 +55,7 @@ module CapistranoSentinel
 
       @on_close   = lambda { |message|
         log_to_file("native websocket client received on_close  #{message.inspect}")
-        if @actor.respond_to?(:on_close)
+        if @actor.present? && @actor.respond_to?(:on_close)
           if @actor.respond_to?(:async)
             @actor.async.on_close(message)
           else
@@ -67,7 +66,7 @@ module CapistranoSentinel
 
       @on_ping    = lambda { |message|
         log_to_file("native websocket client received PING  #{message.inspect}")
-        if @actor.respond_to?(:on_ping)
+        if @actor.present? && @actor.respond_to?(:on_ping)
           if @actor.respond_to?(:async)
             @actor.async.on_ping(message)
           else
@@ -78,7 +77,7 @@ module CapistranoSentinel
 
       @on_error   = lambda { |error|
         log_to_file("native websocket client received ERROR  #{error.inspect} #{error.backtrace}")
-        if @actor.respond_to?(:on_error)
+        if @actor.present? && @actor.respond_to?(:on_error)
           if @actor.respond_to?(:async)
             @actor.async.on_error(error)
           else
@@ -89,8 +88,8 @@ module CapistranoSentinel
 
       @on_message = lambda { |message|
         message = parse_json(message)
-        log_to_file("native websocket client received JSON  #{message}")
-        if @actor.respond_to?(:async)
+        log_to_file("#{@actor.inspect} websocket client received JSON  #{message}")
+        if @actor.present? && @actor.respond_to?(:async)
           @actor.async.on_message(message)
         else
           @actor.on_message(message)
@@ -184,7 +183,7 @@ module CapistranoSentinel
         final_message = JSON.dump(action: 'message', message: message)
       end
       log_to_file("#{@actor.class} sends JSON #{final_message}")
-      send(final_message)
+      send_data(final_message)
     end
 
     ##
@@ -193,9 +192,9 @@ module CapistranoSentinel
     #if on windows fork won't be attempted.
     #+data+:: the data to send
     #+type+:: :text or :binary, defaults to :text
-    def send(data, type = :text)
+    def send_data(data, type = :text)
       pid = Thread.new do
-        log_to_file("#{@actor.class} calls send: #{data}")
+        log_to_file("#{@actor.inspect} calls send: #{data}")
         do_send(data, type)
       end
     end
@@ -231,6 +230,8 @@ module CapistranoSentinel
         end
       end
     end
+
+
 
     def perform_handshake
       handshake = ::WebSocket::Handshake::Client.new({
@@ -310,7 +311,7 @@ module CapistranoSentinel
         when :binary, :text
           fire_on_message(message.data)
         when :ping
-          send(message.data, :pong) if @auto_pong
+          send_data(message.data, :pong) if @auto_pong
           fire_on_ping(message)
         when :pong
           fire_on_error(CapistranoSentinel::WsProtocolError.new('Invalid type pong received'))

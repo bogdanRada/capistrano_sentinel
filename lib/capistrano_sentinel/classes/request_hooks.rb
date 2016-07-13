@@ -5,6 +5,14 @@ module CapistranoSentinel
   # class used to handle the rake worker and sets all the hooks before and after running the worker
   class RequestHooks
 
+    def self.job_id
+      ENV[CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID]
+    end
+
+    def self.socket_client
+      @@socket_client ||= CapistranoSentinel::WebsocketClient.new(actor: nil, enable_debug: ENV.fetch('debug_websocket', false), channel: "#{CapistranoSentinel::RequestHooks::SUBSCRIPTION_PREFIX}#{job_id}", log_file_path: ENV.fetch('websocket_log_file_path', nil))
+    end
+
     ENV_KEY_JOB_ID = 'multi_cap_job_id'
     SUBSCRIPTION_PREFIX ="rake_worker_"
     PUBLISHER_PREFIX ="celluloid_worker_"
@@ -12,13 +20,14 @@ module CapistranoSentinel
     attr_accessor :job_id, :task
 
     def initialize(task = nil)
-      @job_id  = ENV[CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID]
+      @job_id  = CapistranoSentinel::RequestHooks.job_id
       @task = task.respond_to?(:fully_qualified_name) ? task.fully_qualified_name : task
     end
 
     def automatic_hooks(&block)
       if job_id.present? && @task.present?
-        actor_start_working(action: 'invoke')
+        subscribed_already = defined?(@@socket_client)
+        actor_start_working(action: 'invoke', subscribed: subscribed_already)
         actor.wait_execution until actor.task_approved
         actor_execute_block(&block)
       else

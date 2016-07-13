@@ -12,7 +12,8 @@ module CapistranoSentinel
     def work(options = {})
       @options = options.stringify_keys
       default_settings
-      socket_client.subscribe("#{CapistranoSentinel::RequestHooks::SUBSCRIPTION_PREFIX}#{@job_id}")
+      socket_client.actor = self
+      publish_to_worker(task_data) if options['subscribed'].present?
     end
 
     def wait_execution(name = task_name, time = 0.1)
@@ -28,7 +29,7 @@ module CapistranoSentinel
     end
 
     def socket_client
-      @socket_client = CapistranoSentinel::WebsocketClient.new(actor: self, enable_debug: ENV.fetch('debug_websocket', false), channel: nil, log_file_path: ENV.fetch('websocket_log_file_path', nil))
+      @socket_client = CapistranoSentinel::RequestHooks.socket_client
     end
 
     def default_settings
@@ -52,6 +53,7 @@ module CapistranoSentinel
     end
 
     def publish_to_worker(data)
+      log_to_file("RakeWorker #{@job_id} tries to publish #{data.inspect}")
       socket_client.publish("#{CapistranoSentinel::RequestHooks::PUBLISHER_PREFIX}#{@job_id}", data)
     end
 
@@ -101,10 +103,11 @@ module CapistranoSentinel
     def task_approval(message)
       return if !message_is_about_a_task?(message)
       log_to_file("RakeWorker #{@job_id} #{task_name} task_approval : #{message.inspect}")
-      if @job_id.to_s == message['job_id'].to_s && message['task'] && message['approved'] == 'yes'
+      if @job_id.to_s == message['job_id'].to_s && message['task'].to_s == task_name.to_s && message['approved'] == 'yes'
+        show_warning "#{self.inspect} got #{message} and approved"
         @task_approved = true
       else
-        show_warning "unknown task_approval #{message} #{task_data}"
+        show_warning "#{self.inspect} got unknown task_approval #{message} #{task_data}"
       end
     end
 
