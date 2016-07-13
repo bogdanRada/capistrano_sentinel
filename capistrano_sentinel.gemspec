@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.files = `git ls-files`.split("\n")
   s.test_files = s.files.grep(/^(spec)/)
   s.require_paths = ["lib"]
-  s.required_ruby_version = '>= 1.9'
+  s.required_ruby_version = '>= 2.0'
 
 
   s.add_dependency 'websocket'

@@ -13,7 +13,7 @@ module CapistranoSentinel
       @options = options.stringify_keys
       default_settings
       socket_client.actor = self
-      publish_to_worker(task_data) if options['subscribed'].present?
+      publish_to_worker(task_data) if CapistranoSentinel.config.wait_execution && options['subscribed'].present?
     end
 
     def wait_execution(name = task_name, time = 0.1)
