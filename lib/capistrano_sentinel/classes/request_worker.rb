@@ -104,7 +104,6 @@ module CapistranoSentinel
       return if !message_is_about_a_task?(message)
       log_to_file("RakeWorker #{@job_id} #{task_name} task_approval : #{message.inspect}")
       if @job_id.to_s == message['job_id'].to_s && message['task'].to_s == task_name.to_s && message['approved'] == 'yes'
-        show_warning "#{self.inspect} got #{message} and approved"
         @task_approved = true
       else
         show_warning "#{self.inspect} got unknown task_approval #{message} #{task_data}"

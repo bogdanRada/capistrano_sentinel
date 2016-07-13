@@ -3,6 +3,10 @@ module CapistranoSentinel
   module Logging
     module_function
 
+    def logging_enabled?
+      ENV["WEBSOCKET_LOGGING"].to_s == 'true'
+    end
+
     def logger
       @logger ||= ::Logger.new(ENV["LOG_FILE"] || '/dev/null')
     end
@@ -20,7 +24,6 @@ module CapistranoSentinel
     def log_output_error(error, output, message)
       return if message.blank? || error_filtered?(error)
       puts message if output.present?
-      terminal_actor.errors.push(message) if terminal_errors?
     end
 
     def format_error(exception)
@@ -31,6 +34,7 @@ module CapistranoSentinel
     end
 
     def log_to_file(message, options = {})
+      return unless logging_enabled?
       worker_log = options.fetch(:job_id, '').present? ? find_worker_log(options[:job_id]) : logger
       print_to_log_file(worker_log, options.merge(message: message)) if worker_log.present?
     end
@@ -73,7 +77,9 @@ module CapistranoSentinel
       exit(1)
     end
 
+    def show_warning(message)
+      warn message
+    end
 
-
-end
+  end
 end

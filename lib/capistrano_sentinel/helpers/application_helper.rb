@@ -16,10 +16,6 @@ module CapistranoSentinel
       nil
     end
 
-    def show_warning(message)
-      warn message
-    end
-
 
     def msg_for_stdin?(message)
       message['action'] == 'stdin'
