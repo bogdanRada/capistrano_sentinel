@@ -85,6 +85,17 @@ Configuration options
   end
 ```
 
+First time when running a task will subscribe to a channel using this format message:
+
+```ruby
+{     
+  "client_action":"subscribe",
+  "channel":"rake_worker_<job_id>",
+}
+```
+
+If you want to see how this is handled you can check the implementation here for the websocket server and reactor:[celluloid_pubsub](https://github.com/bogdanRada/celluloid_pubsub)
+
 All websocket messages are published in this format:
 
 ```ruby
