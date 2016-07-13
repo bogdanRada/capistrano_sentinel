@@ -1,6 +1,8 @@
 capistrano_sentinel
 ===================
 
+[![Gem Version](https://badge.fury.io/rb/capistrano_sentinel.svg)](http://badge.fury.io/rb/capistrano_sentinel)[![Gem Downloads](https://ruby-gem-downloads-badge.herokuapp.com/capistrano_sentinel?type=total&style=dynamic)](https://github.com/bogdanRada/capistrano_sentinel) [![Analytics](https://ga-beacon.appspot.com/UA-72570203-1/bogdanRada/capistrano_sentinel)](https://github.com/bogdanRada/capistrano_sentinel)
+
 Overview
 --------
 
