@@ -6,9 +6,9 @@ Overview
 
 CapistranoSentinel is a simple ruby implementation that allows you to emit websocket events before a task is invoked by Capistrano.
 
-This gem only has the websocket client that emit events to a host (default 0.0.0.0 port 1234 and path /ws)
+This gem only has the websocket client that emit events to a default host and port , see here more details: **[Configuration options](#configuration-options)**
 
-Currently there is no posibility to change the default configuration becasue this was just released few days ago, but this will be added soon
+You can change that configuration following the description below
 
 Requirements
 ------------
