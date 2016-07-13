@@ -20,14 +20,14 @@ module CapistranoSentinel
       @hook_stdin_and_stdout = true
     end
 
-    def update(settings_hash)
-      settings_hash.each do |setting, value|
-        unless SETTINGS.include? setting.to_sym
-          raise ArgumentError, "invalid setting: #{setting}"
-        end
-
-        self.public_send "#{setting}=", value
-      end
-    end
+    # def update(settings_hash)
+    #   settings_hash.each do |setting, value|
+    #     unless SETTINGS.include? setting.to_sym
+    #       raise ArgumentError, "invalid setting: #{setting}"
+    #     end
+    #
+    #     self.public_send "#{setting}=", value
+    #   end
+    # end
   end
 end
