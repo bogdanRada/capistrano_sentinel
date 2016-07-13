@@ -4,20 +4,8 @@ module CapistranoSentinel
   class WebsocketClient
     include CapistranoSentinel::ApplicationHelper
 
-    HOST = '0.0.0.0'
-    PORT = 1234
-    PATH = '/ws'
-
-    DEFAULT_OPTS = {
-      auto_pong: true,
-      read_buffer_size: 2048,
-      reconnect: false,
-      secure: false,
-      retry_time: 0
-    }
-
-    attr_reader :socket, :read_thread,  :protocol_version, :actor
-    attr_accessor :auto_pong, :on_ping, :on_error, :on_message, :actor
+    attr_reader :socket, :read_thread,  :protocol_version, :actor, :read_buffer_size, :reconnect, :retry_time
+    attr_accessor :auto_pong, :on_ping, :on_error, :on_message, :actor, :read_buffer_size, :reconnect, :retry_time
 
     ##
     # +host+:: Host of request. Required if no :url param was provided.
@@ -32,19 +20,25 @@ module CapistranoSentinel
     def initialize(opts)
 
       # Initializing with a single hash
-      @options = CapistranoSentinel::WebsocketClient::DEFAULT_OPTS.merge(opts).symbolize_keys
-      @secure  = @options.delete :secure
+      @options = opts.symbolize_keys
 
-      @host    = @options.fetch(:host, nil) || CapistranoSentinel::WebsocketClient::HOST
-      @port    = @secure ? 443 : (@options.fetch(:port, nil) || CapistranoSentinel::WebsocketClient::PORT)
-      @path    = @options.fetch(:path, nil).to_s || CapistranoSentinel::WebsocketClient::PATH
-      @query   = @options.fetch(:query, nil).to_s
+      @auto_pong   = @options.fetch(:auto_pong, nil) || CapistranoSentinel.config.auto_pong
+      @read_buffer_size = @options.fetch(:read_buffer_size, nil) ||  CapistranoSentinel.config.read_buffer_size
+      @reconnect = @options.fetch(:reconnect, nil) ||  CapistranoSentinel.config.reconnect
+      @retry_time = @options.fetch(:retry_time, nil) ||  CapistranoSentinel.config.retry_time
+
+
+      @secure  = @options.fetch(:secure, nil) || CapistranoSentinel.config.secure
+
+      @host    = @options.fetch(:host, nil) || CapistranoSentinel.config.host
+      @port    = @secure ? 443 : (@options.fetch(:port, nil) ||  CapistranoSentinel.config.port)
+      @path    = @options.fetch(:path, nil) ||  CapistranoSentinel.config.path
+      @query   = @options.fetch(:query, nil)
 
       @actor ||=  @options.fetch(:actor, nil)
       @channel ||= @options.fetch(:channel, nil)
 
 
-      @auto_pong   = @options.fetch(:auto_pong, true) || true
       @closed      = false
       @opened      = false
 
@@ -224,7 +218,7 @@ module CapistranoSentinel
           connect
         rescue ::Errno::ECONNREFUSED => e
           log_to_file("#{self.class} got ECONNREFUSED #{e.inspect} ")
-          sleep @options[:retry_time]
+          sleep @retry_time
         rescue => e
           fire_on_error e
         end
@@ -287,7 +281,7 @@ module CapistranoSentinel
         frame = ::WebSocket::Frame::Incoming::Client.new(:version => @protocol_version)
         loop do
           begin
-            frame << @socket.readpartial(@options[:read_buffer_size])
+            frame << @socket.readpartial(@read_buffer_size)
             while message = frame.next
               #"text", "binary", "ping", "pong" and "close" (according to websocket/base.rb)
               determine_message_type(message)
@@ -362,7 +356,7 @@ module CapistranoSentinel
         @on_close.call(message) if @on_close
         @socket.close unless @socket.closed?
 
-        reconnect if @options[:reconnect]
+        reconnect if @reconnect
       end
 
     end # class

@@ -6,7 +6,7 @@ module CapistranoSentinel
   class RequestHooks
 
     def self.job_id
-      ENV[CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID]
+      @@job_id ||= ENV.fetch(CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID, nil) || SecureRandom.uuid
     end
 
     def self.socket_client
@@ -28,7 +28,9 @@ module CapistranoSentinel
       if job_id.present? && @task.present?
         subscribed_already = defined?(@@socket_client)
         actor_start_working(action: 'invoke', subscribed: subscribed_already)
-        actor.wait_execution until actor.task_approved
+        if CapistranoSentinel.config.wait_execution
+          actor.wait_execution until actor.task_approved
+        end
         actor_execute_block(&block)
       else
         block.call
@@ -49,7 +51,7 @@ module CapistranoSentinel
       yield if block_given?
     end
 
-  private
+    private
 
     def actor
       @actor ||= CapistranoSentinel::RequestWorker.new

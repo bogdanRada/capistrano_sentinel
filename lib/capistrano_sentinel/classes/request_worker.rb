@@ -122,7 +122,7 @@ module CapistranoSentinel
       question: question,
       default: default.present? ? default.delete('()') : '',
       job_id: @job_id)
-      wait_for_stdin_input
+      wait_for_stdin_input if CapistranoSentinel.config.wait_execution
     end
   end
 end
