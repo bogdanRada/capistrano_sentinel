@@ -72,9 +72,52 @@ Configuration options
     # if this is enabled, the task will sleep until the socket receives a message back in this format
     # {"action"=>"invoke", "task"=><task_name>, "job_id"=><job_id>, "approved"=>"yes"},
     # where the task_name needs to be the task that is waiting for approval and
-    # the job_id needs to be set using ENV['multi_cap_job_id'], for parallel processing ( if the job id is missing , will be automatically generated with SecureRandom.uuid)
+    # the job_id needs to be set using ENV['multi_cap_job_id'], for parallel processing
+    # ( if the job id is missing , will be automatically generated with SecureRandom.uuid)
     config.wait_execution = true
+
+    # if this is enabled, this will hook into stdin and stdout before a task is executed and if stdin is needed
+    # than will publish a message in this format {"action":"stdout","question":"<the stdout message>",default:"", "job_id":"<job_id>" }
+    # where question key is done by reading the last message printed by the task and parsing the message to detect
+    # if the message is a question . If it is a question in this format ( e.g. "where do you live?(Y/N)")
+    # then the question will be sent as "where do you live?" and the default will be "Y/N"
+    config.hook_stdin_and_stdout = true
   end
+```
+
+All websocket messages are published in this format:
+
+```ruby
+{     
+  "client_action":"publish",
+  "channel":"celluloid_worker_<job_id>",
+  "data": {}
+}
+```
+
+Where the **data** will have as value the example listed below when using **wait_execution** set to **TRUE**:
+
+E.g. Mesage sent before a task is executed:
+
+```ruby
+{     
+  "action"=> "invoke",
+  "task"=> <task_name>,
+  "job_id"=> <job_id>
+}
+```
+
+Or when using **hook_stdin_and_stdout** set to **TRUE**:
+
+And E.g.
+
+```ruby
+  {
+    "action": "stdout",
+    "question": < if the stdout contains ? or : will use the text before that character >,
+    'default': <if the stdout message cotains () will use the text from within, otherwise string blank >,
+    "job_id": "<job_id>"
+  }
 ```
 
 Usage Instructions

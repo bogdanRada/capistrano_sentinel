@@ -38,7 +38,7 @@ module CapistranoSentinel
     end
 
     def print_question?(question)
-      if job_id.present?
+      if CapistranoSentinel.config.hook_stdin_and_stdout && job_id.present?
         actor.user_prompt_needed?(question)
       else
         yield if block_given?
@@ -79,9 +79,9 @@ module CapistranoSentinel
     end
 
     def actor_execute_block(&block)
-      before_hooks
+      before_hooks if CapistranoSentinel.config.hook_stdin_and_stdout
       block.call
-      after_hooks
+      after_hooks if CapistranoSentinel.config.hook_stdin_and_stdout
     end
 
     def actor_start_working(additionals = {})
