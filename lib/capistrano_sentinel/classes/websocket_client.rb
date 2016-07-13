@@ -54,7 +54,7 @@ module CapistranoSentinel
       }
 
       @on_close   = lambda { |message|
-        log_to_file("native websocket client received on_close  #{message.inspect}")
+        log_to_file("#{@actor.class} client received on_close  #{message.inspect}")
         if @actor.present? && @actor.respond_to?(:on_close)
           if @actor.respond_to?(:async)
             @actor.async.on_close(message)
@@ -65,7 +65,7 @@ module CapistranoSentinel
       }
 
       @on_ping    = lambda { |message|
-        log_to_file("native websocket client received PING  #{message.inspect}")
+        log_to_file("#{@actor.class} client received PING  #{message.inspect}")
         if @actor.present? && @actor.respond_to?(:on_ping)
           if @actor.respond_to?(:async)
             @actor.async.on_ping(message)
@@ -76,7 +76,7 @@ module CapistranoSentinel
       }
 
       @on_error   = lambda { |error|
-        log_to_file("native websocket client received ERROR  #{error.inspect} #{error.backtrace}")
+        log_to_file("#{@actor.class} received ERROR  #{error.inspect} #{error.backtrace}")
         if @actor.present? && @actor.respond_to?(:on_error)
           if @actor.respond_to?(:async)
             @actor.async.on_error(error)
@@ -88,7 +88,7 @@ module CapistranoSentinel
 
       @on_message = lambda { |message|
         message = parse_json(message)
-        log_to_file("#{@actor.inspect} websocket client received JSON  #{message}")
+        log_to_file("#{@actor.class} websocket client received JSON  #{message}")
         if @actor.present? && @actor.respond_to?(:async)
           @actor.async.on_message(message)
         else
@@ -194,7 +194,7 @@ module CapistranoSentinel
     #+type+:: :text or :binary, defaults to :text
     def send_data(data, type = :text)
       pid = Thread.new do
-        log_to_file("#{@actor.inspect} calls send: #{data}")
+        log_to_file("#{@actor.class} calls send: #{data}")
         do_send(data, type)
       end
     end
