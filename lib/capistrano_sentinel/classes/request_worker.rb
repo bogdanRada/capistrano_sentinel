@@ -6,17 +6,17 @@ module CapistranoSentinel
     include CapistranoSentinel::ApplicationHelper
 
     attr_reader :client, :job_id, :action, :task,
-    :task_approved, :stdin_result, :executor
+    :task_approved, :stdin_result, :executor, :successfull_subscription
 
 
     def work(options = {})
       @options = options.stringify_keys
       default_settings
       socket_client.actor = self
-      publish_to_worker(task_data) if CapistranoSentinel.config.wait_execution && options['subscribed'].present?
+      publish_to_worker(task_data) if options['subscribed'].present?
     end
 
-    def wait_execution(name = task_name, time = 0.1)
+    def wait_execution_of_task(name = task_name, time = 0.1)
       #    info "Before waiting #{name}"
       wait_for(name, time)
       #  info "After waiting #{name}"
@@ -38,6 +38,7 @@ module CapistranoSentinel
       @task_approved = false
       @action = @options['action'].present? ? @options['action'] : 'invoke'
       @task = @options['task']
+      @successfull_subscription = false
     end
 
     def task_name
@@ -80,12 +81,12 @@ module CapistranoSentinel
     def publish_subscription_successfull(message)
       return unless message['client_action'] == 'successful_subscription'
       log_to_file("Rake worker #{@job_id} received after publish_subscription_successfull: #{message}")
-      @successfull_subscription = true
       publish_to_worker(task_data)
+      @successfull_subscription = true
     end
 
     def wait_for_stdin_input
-      wait_execution until @stdin_result.present?
+      wait_execution_of_task until @stdin_result.present?
       output = @stdin_result.clone
       @stdin_result = nil
       output

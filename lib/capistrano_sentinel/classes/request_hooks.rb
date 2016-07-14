@@ -10,7 +10,18 @@ module CapistranoSentinel
     end
 
     def self.socket_client
-      @@socket_client ||= CapistranoSentinel::WebsocketClient.new(actor: nil, enable_debug: ENV.fetch('debug_websocket', false), channel: "#{CapistranoSentinel::RequestHooks::SUBSCRIPTION_PREFIX}#{job_id}", log_file_path: ENV.fetch('websocket_log_file_path', nil))
+      @@socket_client ||= CapistranoSentinel::WebsocketClient.new(
+      actor:            nil,
+      channel:          "#{CapistranoSentinel::RequestHooks::SUBSCRIPTION_PREFIX}#{job_id}",
+      auto_pong:        ENV.fetch('WS_AUTO_PONG', nil),
+      read_buffer_size: ENV.fetch('WS_READ_BUFFER_SIZE', nil),
+      reconnect:        ENV.fetch("WS_RECONNECT", nil),
+      retry_time:       ENV.fetch("WS_RETRY_TIME", nil),
+      secure:           ENV.fetch("WS_SECURE", nil),
+      host:             ENV.fetch("WS_HOST", nil),
+      port:             ENV.fetch("WS_PORT", nil),
+      path:             ENV.fetch("WS_PATH", nil)
+      )
     end
 
     ENV_KEY_JOB_ID = 'multi_cap_job_id'
@@ -29,7 +40,9 @@ module CapistranoSentinel
         subscribed_already = defined?(@@socket_client)
         actor_start_working(action: 'invoke', subscribed: subscribed_already)
         if CapistranoSentinel.config.wait_execution
-          actor.wait_execution until actor.task_approved
+          actor.wait_execution_of_task until actor.task_approved
+        elsif subscribed_already.blank?
+          actor.wait_execution_of_task until actor.successfull_subscription
         end
         actor_execute_block(&block)
       else

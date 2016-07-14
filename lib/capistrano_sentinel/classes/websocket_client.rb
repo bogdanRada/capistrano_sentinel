@@ -84,6 +84,7 @@ module CapistranoSentinel
         message = parse_json(message)
         log_to_file("#{@actor.class} websocket client received JSON  #{message}")
         if @actor.present? && @actor.respond_to?(:async)
+          log_to_file("#{@actor.class} works async on message #{message.inspect}")
           @actor.async.on_message(message)
         else
           @actor.on_message(message)
@@ -104,7 +105,7 @@ module CapistranoSentinel
     #
     # @api public
     def subscribe(channel, data = {})
-      log_to_file("#{self.class} tries to subscribe to channel  #{channel}")
+      log_to_file("#{self.class} tries to subscribe to channel  #{channel} with #{data.inspect}")
       send_action('subscribe', channel, data)
     end
 
@@ -188,7 +189,6 @@ module CapistranoSentinel
     #+type+:: :text or :binary, defaults to :text
     def send_data(data, type = :text)
       pid = Thread.new do
-        log_to_file("#{@actor.class} calls send: #{data}")
         do_send(data, type)
       end
     end
