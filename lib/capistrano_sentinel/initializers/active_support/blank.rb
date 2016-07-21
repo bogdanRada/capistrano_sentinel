@@ -97,7 +97,6 @@ class Hash
 end
 
 class String
-  BLANK_RE2 = /\A[[:space:]]*\z/
 
   # A string is blank if it's empty or contains whitespaces only:
   #
@@ -115,7 +114,7 @@ class String
     # The regexp that matches blank strings is expensive. For the case of empty
     # strings we can speed up this method (~3.5x) with an empty? call. The
     # penalty for the rest of strings is marginal.
-    empty? || BLANK_RE2 === self
+    empty? || /\A[[:space:]]*\z/ === self
   end
 end
 
