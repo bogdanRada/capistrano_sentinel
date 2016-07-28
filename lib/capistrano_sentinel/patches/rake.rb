@@ -1,4 +1,5 @@
 require 'capistrano/all'
+
 Rake::Task.class_eval do
   alias_method :original_execute, :execute
 
