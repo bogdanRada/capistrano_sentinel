@@ -5,23 +5,25 @@ require_relative './request_worker'
 module CapistranoSentinel
   # class used to handle the rake worker and sets all the hooks before and after running the worker
   class RequestHooks
-    def self.job_id
-      @job_id ||= ENV.fetch(CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID, nil) || SecureRandom.uuid
-    end
+    class << self
+      def job_id
+        @@job_id ||= ENV.fetch(CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID, nil) || SecureRandom.uuid
+      end
 
-    def self.socket_client
-      @socket_client ||= CapistranoSentinel::WebsocketClient.new(
-        actor:            nil,
-        channel:          "#{CapistranoSentinel::RequestHooks::SUBSCRIPTION_PREFIX}#{job_id}",
-        auto_pong:        ENV.fetch('WS_AUTO_PONG', nil),
-        read_buffer_size: ENV.fetch('WS_READ_BUFFER_SIZE', nil),
-        reconnect:        ENV.fetch('WS_RECONNECT', nil),
-        retry_time:       ENV.fetch('WS_RETRY_TIME', nil),
-        secure:           ENV.fetch('WS_SECURE', nil),
-        host:             ENV.fetch('WS_HOST', nil),
-        port:             ENV.fetch('WS_PORT', nil),
-        path:             ENV.fetch('WS_PATH', nil)
-      )
+      def socket_client
+        @@socket_client ||= CapistranoSentinel::WebsocketClient.new(
+          actor:            nil,
+          channel:          "#{CapistranoSentinel::RequestHooks::SUBSCRIPTION_PREFIX}#{job_id}",
+          auto_pong:        ENV.fetch('WS_AUTO_PONG', nil),
+          read_buffer_size: ENV.fetch('WS_READ_BUFFER_SIZE', nil),
+          reconnect:        ENV.fetch('WS_RECONNECT', nil),
+          retry_time:       ENV.fetch('WS_RETRY_TIME', nil),
+          secure:           ENV.fetch('WS_SECURE', nil),
+          host:             ENV.fetch('WS_HOST', nil),
+          port:             ENV.fetch('WS_PORT', nil),
+          path:             ENV.fetch('WS_PATH', nil)
+        )
+      end
     end
 
     ENV_KEY_JOB_ID = 'multi_cap_job_id'

@@ -244,38 +244,33 @@ module CapistranoSentinel
       fire_on_open
     end
 
-    def handle_handshake_ongoing(handshake, buf = '')
-      # \r\n\r\n i.e. a blank line, separates headers from body
-      return unless buf.index(/\r\n\r\n/m)
-      handshake << buf # parse headers
-
-      if handshake.finished? && !handshake.valid?
-        fire_on_error(CapistranoSentinel::ConnectError.new('Server responded with an invalid handshake'))
-        fire_on_close # close if handshake is not valid
-        break
-      end
-    end
-
-    def do_handshaking(handshake)
-      if handshake.finished?
-        handle_handshake_finished(handshake)
-        break
-      else
-        # do non blocking reads on headers - 1 byte at a time
-        buf.concat(@socket.read_nonblock(1))
-        handle_handshake_ongoing(handshake, buf)
-      end
-    end
-
+    # rubocop:disable CyclomaticComplexity, PerceivedComplexity
     def handle_handshake_status(handshake)
       loop do
         begin
-          do_handshaking(handshake)
+          if handshake.finished?
+            handle_handshake_finished(handshake)
+            break
+          else
+            # do non blocking reads on headers - 1 byte at a time
+            buf.concat(@socket.read_nonblock(1))
+            # \r\n\r\n i.e. a blank line, separates headers from body
+            if buf.index(/\r\n\r\n/m)
+              handshake << buf # parse headers
+
+              if handshake.finished? && !handshake.valid?
+                fire_on_error(CapistranoSentinel::ConnectError.new('Server responded with an invalid handshake'))
+                fire_on_close # close if handshake is not valid
+                break
+              end
+            end
+          end
         rescue => exception
           log_to_file("#{self.class} crashed with #{exception.inspect} #{exception.backtrace}") unless [::IO::WaitReadable, ::IO::WaitWritable].include?(exception.class)
         end
       end
     end
+    # rubocop:enable CyclomaticComplexity, PerceivedComplexity
 
     # Use one thread to perform blocking read on the socket
     def init_messaging
