@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'capistrano/all'
 
 Rake::Task.class_eval do

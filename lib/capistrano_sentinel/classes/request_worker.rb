@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative './websocket_client'
 require_relative '../helpers/application_helper'
 module CapistranoSentinel
@@ -5,9 +6,7 @@ module CapistranoSentinel
   class RequestWorker
     include CapistranoSentinel::ApplicationHelper
 
-    attr_reader :client, :job_id, :action, :task,
-    :task_approved, :stdin_result, :executor, :successfull_subscription
-
+    attr_reader :client, :job_id, :action, :task, :task_approved, :stdin_result, :executor, :successfull_subscription
 
     def work(options = {})
       @options = options.stringify_keys
@@ -77,7 +76,6 @@ module CapistranoSentinel
       end
     end
 
-
     def publish_subscription_successfull(message)
       return unless message['client_action'] == 'successful_subscription'
       log_to_file("Rake worker #{@job_id} received after publish_subscription_successfull: #{message}")
@@ -107,7 +105,7 @@ module CapistranoSentinel
       if @job_id.to_s == message['job_id'].to_s && message['task'].to_s == task_name.to_s && message['approved'] == 'yes'
         @task_approved = true
       else
-        show_warning "#{self.inspect} got unknown task_approval #{message} #{task_data}"
+        show_warning "#{inspect} got unknown task_approval #{message} #{task_data}"
       end
     end
 
@@ -119,10 +117,12 @@ module CapistranoSentinel
       question, default = get_question_details(data)
       log_to_file("RakeWorker #{@job_id} tries to determine question #{data.inspect} #{question.inspect} #{default.inspect}")
       return if question.blank? || @action != 'invoke'
-      publish_to_worker(action: 'stdout',
-      question: question,
-      default: default.present? ? default.delete('()') : '',
-      job_id: @job_id)
+      publish_to_worker(
+        action: 'stdout',
+        question: question,
+        default: default.present? ? default.delete('()') : '',
+        job_id: @job_id
+      )
       wait_for_stdin_input if CapistranoSentinel.config.wait_execution
     end
   end

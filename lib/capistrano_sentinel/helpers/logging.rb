@@ -1,14 +1,15 @@
+# frozen_string_literal: true
 module CapistranoSentinel
   # class that holds the options that are configurable for this gem
   module Logging
-    module_function
+  module_function
 
     def logging_enabled?
-      ENV["WEBSOCKET_LOGGING"].to_s == 'true'
+      ENV['WEBSOCKET_LOGGING'].to_s == 'true'
     end
 
     def logger
-      @logger ||= ::Logger.new(ENV["LOG_FILE"] || '/dev/null')
+      @logger ||= ::Logger.new(ENV['LOG_FILE'] || '/dev/null')
     end
 
     def error_filtered?(error)
@@ -80,6 +81,5 @@ module CapistranoSentinel
     def show_warning(message)
       warn message
     end
-
   end
 end

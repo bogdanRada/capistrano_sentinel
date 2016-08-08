@@ -1,9 +1,11 @@
+# frozen_string_literal: true
 require_relative './logging'
 module CapistranoSentinel
   # class that holds the options that are configurable for this gem
   module ApplicationHelper
     include CapistranoSentinel::Logging
-    module_function
+
+  module_function
 
     # Method that is used to parse a string as JSON , if it fails will return nil
     # @see JSON#parse
@@ -15,7 +17,6 @@ module CapistranoSentinel
     rescue JSON::ParserError
       nil
     end
-
 
     def msg_for_stdin?(message)
       message['action'] == 'stdin'
@@ -37,7 +38,5 @@ module CapistranoSentinel
       matches = /(.*)\?*\s*\:*\s*(\([^)]*\))*/m.match(data).captures
       [matches[0], matches[1]]
     end
-
-
   end
 end

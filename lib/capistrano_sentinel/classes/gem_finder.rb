@@ -1,21 +1,28 @@
+# frozen_string_literal: true
 module CapistranoSentinel
   # helper used to determine gem versions
   class GemFinder
     class << self
-
-      def get_current_gem_name
-        searcher = if Gem::Specification.respond_to? :find
+      def gem_searcher
+        if Gem::Specification.respond_to? :find
           # ruby 2.0
           Gem::Specification
         elsif Gem.respond_to? :searcher
           # ruby 1.8/1.9
           Gem.searcher.init_gemspecs
         end
-        spec = unless searcher.nil?
-          searcher.find do |spec|
-            File.fnmatch(File.join(spec.full_gem_path,'*'), __FILE__)
-          end
+      end
+
+      def search_find_gemspec(searcher)
+        return if searcher.nil?
+        searcher.find do |specification|
+          File.fnmatch(File.join(specification.full_gem_path, '*'), __FILE__)
         end
+      end
+
+      def fetch_current_gem_name
+        searcher = gem_searcher
+        spec = search_find_gemspec(searcher)
         spec.name unless value_blank?(spec)
       end
 
@@ -25,17 +32,17 @@ module CapistranoSentinel
       end
 
       def value_blank?(value)
-        value.nil? || value_empty?(value) || (value.is_a?(String) &&  /\A[[:space:]]*\z/ === value)
+        value.nil? || value_empty?(value) || (value.is_a?(String) && /\A[[:space:]]*\z/.match(value))
       end
 
       def value_empty?(value)
-        value.respond_to?(:empty?) ? !!value.empty? : !value
+        value.respond_to?(:empty?) ? value.empty? : !value
       end
 
       def find_loaded_gem(name, property = nil)
         gem_spec = Gem.loaded_specs.values.find { |repo| repo.name == name }
         return if value_blank?(gem_spec)
-        value_blank?(property) ?  gem_spec :  gem_spec.send(property)
+        value_blank?(property) ? gem_spec : gem_spec.send(property)
       end
 
       def find_loaded_gem_property(gem_name, property = 'version')

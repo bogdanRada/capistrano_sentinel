@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rubygems'
 require 'bundler'
 require 'bundler/setup'
@@ -19,10 +20,10 @@ require 'websocket'
 require_relative './classes/gem_finder'
 
 %w(initializers helpers classes).each do |folder_name|
-  Gem.find_files("#{CapistranoSentinel::GemFinder.get_current_gem_name}/#{folder_name}/**/*.rb").each { |path| require path }
+  Gem.find_files("#{CapistranoSentinel::GemFinder.fetch_current_gem_name}/#{folder_name}/**/*.rb").each { |path| require path }
 end
 
-if !CapistranoSentinel::GemFinder.value_blank?(CapistranoSentinel::RequestHooks.job_id)
+unless CapistranoSentinel::GemFinder.value_blank?(CapistranoSentinel::RequestHooks.job_id)
 
   if CapistranoSentinel::GemFinder.fetch_gem_version('capistrano')
     if CapistranoSentinel::GemFinder.capistrano_version_2?

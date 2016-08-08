@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 require 'capistrano_sentinel/all'
 
-module CapistranoSentinel
-
+# module that holds the configuration
+module CapistranoSentine
   def self.configure
     yield config
   end
