@@ -6,10 +6,13 @@ module CapistranoSentinel
   # class used to handle the rake worker and sets all the hooks before and after running the worker
   class RequestHooks
     class << self
+      # rubocop:disable ClassVars
       def job_id
         @@job_id ||= ENV.fetch(CapistranoSentinel::RequestHooks::ENV_KEY_JOB_ID, nil) || SecureRandom.uuid
       end
+      # rubocop:enable ClassVars
 
+      # rubocop:disable ClassVars
       def socket_client
         @@socket_client ||= CapistranoSentinel::WebsocketClient.new(
           actor:            nil,
@@ -24,6 +27,7 @@ module CapistranoSentinel
           path:             ENV.fetch('WS_PATH', nil)
         )
       end
+      # rubocop:enable ClassVars
     end
 
     ENV_KEY_JOB_ID = 'multi_cap_job_id'
