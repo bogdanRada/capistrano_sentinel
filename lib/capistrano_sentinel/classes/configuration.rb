@@ -32,19 +32,19 @@ module CapistranoSentinel
       @retry_time = 0
       @wait_execution = true
       @hook_stdin_and_stdout = true
-      @max_frame_size = ::Websocket.max_frame_size
-      @should_raise = ::Websocket.should_raise
+      @max_frame_size = ::WebSocket.max_frame_size
+      @should_raise = ::WebSocket.should_raise
     end
 
 
     def max_frame_size=(val)
-      ::Websocket.max_frame_size = @max_frame_size = val
+      ::WebSocket.max_frame_size = @max_frame_size = val
     end
 
     def should_raise=(val)
-      ::Websocket.should_raise = @should_raise = val
+      ::WebSocket.should_raise = @should_raise = val
     end
 
-
+    
   end
 end
