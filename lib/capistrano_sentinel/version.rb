@@ -15,12 +15,12 @@ module CapistranoSentinel
     # major release version
     MAJOR = 0
     # minor release version
-    MINOR = 1
+    MINOR = 2
     # tiny release version
-    TINY = 1
+    TINY = 0
     # prelease version ( set this only if it is a prelease)
     PRE = nil
-
+    
     # generates the version string
     STRING = [MAJOR, MINOR, TINY, PRE].compact.join('.')
   end
