@@ -12,7 +12,7 @@ group :development, :test do
   gem 'appraisal', '~> 2.1'
 
   gem 'yard', '~> 0.8'
-  gem 'redcarpet', '~> 3.3'
+  gem 'redcarpet', '~> 3.4'
   gem 'github-markup', '~> 1.4'
   gem 'inch', '~> 0.7'
 end
