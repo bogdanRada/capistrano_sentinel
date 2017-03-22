@@ -1,3 +1,4 @@
+require 'date'
 require File.expand_path("../lib/capistrano_sentinel/version", __FILE__)
 
 Gem::Specification.new do |s|
