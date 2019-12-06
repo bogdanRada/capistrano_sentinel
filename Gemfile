@@ -11,7 +11,7 @@ group :development, :test do
   gem 'coveralls', '~> 0.8'
   gem 'appraisal', '~> 2.1'
 
-  gem 'yard', '~> 0.8'
+  gem 'yard', '~> 0.9'
   gem 'redcarpet', '~> 3.4'
   gem 'github-markup', '~> 1.4'
   gem 'inch', '~> 0.7'

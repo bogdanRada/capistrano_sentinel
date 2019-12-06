@@ -17,7 +17,7 @@ module CapistranoSentinel
     # minor release version
     MINOR = 2
     # tiny release version
-    TINY = 2
+    TINY = 3
     # prelease version ( set this only if it is a prelease)
     PRE = nil
 

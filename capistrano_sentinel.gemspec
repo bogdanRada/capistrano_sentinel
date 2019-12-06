@@ -22,5 +22,4 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'websocket'
 
-
 end
